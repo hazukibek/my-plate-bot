@@ -41,6 +41,20 @@ def start(message):
     update_messages_count(user_id)
 
 
+@server.route(f"/{BOT_TOKEN}", methods=["POST"])
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL)
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+
 @bot.message_handler(content_types=['text'])
 def reg(message):
     markup_close = types.ReplyKeyboardRemove()
@@ -119,7 +133,8 @@ def reg_phy(message):
         bot.send_message(message.chat.id, "invalid data")
     call = (10 * weight + 6.25 * height - 5 * age + f) * A
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
-    bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call))
+    bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call)+" "+"ккал")
+    bot.send_message(message.chat.id, "Хотите узнать ")
     db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)",(age, height, weight, call, name, phy, sex))
     db_connection.commit()
 
@@ -151,17 +166,3 @@ def user_text(message):
         markup.add(button1, button2, button3, button4)
         markup.add(button5, button6, button7, button8)
         bot.send_message(message.chat.id, '', reply_markup=markup)
-
-
-@server.route(f"/{BOT_TOKEN}", methods=["POST"])
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
-
-if __name__ == "__main__":
-    bot.remove_webhook()
-    bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
