@@ -4,6 +4,7 @@ import logging
 import psycopg2
 from config import *
 from flask import Flask, request
+from telebot import types
 
 bot = telebot.TeleBot(BOT_TOKEN)
 server = Flask(__name__)
@@ -34,6 +35,20 @@ def start(message):
         db_connection.commit()
 
     update_messages_count(user_id)
+
+
+@bot.message_handler(commands=['begin'])
+def buttons(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    insta = types.KeyboardButton("Сериал на Netflix")
+    twitter = types.KeyboardButton("Твиттер")
+    info = types.KeyboardButton("Постер")
+    pic = types.KeyboardButton("Трейлер")
+    video = types.KeyboardButton("О сериале")
+    exit = types.KeyboardButton("Выход")
+    markup.add(insta, twitter, info)
+    markup.add(pic, video, exit)
+    bot.send_message(message.chat.id, 'Здесь ты можешь узнать подробную информацию о сериале "Очень странные дела"', reply_markup=markup)
 
 
 @server.route(f"/{BOT_TOKEN}", methods=["POST"])
