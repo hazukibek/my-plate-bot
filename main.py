@@ -40,14 +40,12 @@ def start(message):
 @bot.message_handler(commands=['begin'])
 def buttons(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    insta = types.KeyboardButton("Сериал на Netflix")
-    twitter = types.KeyboardButton("Твиттер")
-    info = types.KeyboardButton("Постер")
-    pic = types.KeyboardButton("Трейлер")
-    video = types.KeyboardButton("О сериале")
+    receipt = types.KeyboardButton("Рецепты")
+    data = types.KeyboardButton("Моя персональная информация")
+    info = types.KeyboardButton("О боте")
     exit = types.KeyboardButton("Выход")
-    markup.add(insta, twitter, info)
-    markup.add(pic, video, exit)
+    markup.add(receipt, data)
+    markup.add(info, exit)
     bot.send_message(message.chat.id, 'Здесь ты можешь узнать подробную информацию о сериале "Очень странные дела"', reply_markup=markup)
 
 
