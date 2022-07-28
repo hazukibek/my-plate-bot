@@ -112,15 +112,15 @@ def reg_phy(message):
         A = 1.9
     else:
         bot.send_message(message.chat.id, "invalid data")
+
     if sex == "Мужской":
         call = (10 * weight + 6.25 * height - 5 * age + 5) * A
     elif sex == "Женский":
         call = (10 * weight + 6.25 * height - 5 * age - 161) * A
-    db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)", (age, height, weight, call, name, phy, sex))
-    db_connection.commit()
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
-    bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + call)
-
+    bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call))
+    db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)",(age, height, weight, call, name, phy, sex))
+    db_connection.commit()
 
 @bot.message_handler(commands=['begin'])
 def buttons(message):
