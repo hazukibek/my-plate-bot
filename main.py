@@ -51,8 +51,7 @@ def reg(message):
 def reg_name(message):
     global name
     name = message.text
-    db_object.execute(f"UPDATE users SET name = {name} WHERE id = {user_id}")
-    db_connection.commit()
+    db_object.execute(f"UPDATE users SET name = %s WHERE id = %s ", [name, user_id])
     bot.reply_to(message, "Прекрасное имя!")
     bot.send_message(message.chat.id, "Сколько Вам лет?")
     bot.register_next_step_handler(message, reg_age)
