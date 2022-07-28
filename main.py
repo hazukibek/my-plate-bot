@@ -102,25 +102,42 @@ def reg_phy(message):
     bot.reply_to(message, 'Cпасибо за информацию!', reply_markup=types.ReplyKeyboardRemove())
     if phy == "Минимальная активность":
         A = 1.2
+        if sex == "Мужской":
+            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+        elif sex == "Женский":
+            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Слабая активность: раз в неделю":
         A = 1.375
+        if sex == "Мужской":
+            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+        elif sex == "Женский":
+            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Средняя активность: 3 раза в неделю":
         A = 1.55
+        if sex == "Мужской":
+            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+        elif sex == "Женский":
+            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Высокая активность: почти каждый день":
         A = 1.725
+        if sex == "Мужской":
+            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+        elif sex == "Женский":
+            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Экстра-активность: тяжелая физическая работа; спорт":
         A = 1.9
+        if sex == "Мужской":
+            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+        elif sex == "Женский":
+            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     else:
         bot.send_message(message.chat.id, "invalid data")
 
-    if sex == "Мужской":
-        call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-    elif sex == "Женский":
-        call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
     bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call))
     db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)",(age, height, weight, call, name, phy, sex))
     db_connection.commit()
+
 
 @bot.message_handler(commands=['begin'])
 def buttons(message):
@@ -136,19 +153,19 @@ def buttons(message):
 
 @bot.message_handler(content_types=['text'])
 def user_text(message):
-  if message.text.lower() == 'моя персональная информация':
-      markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-      button1 = types.KeyboardButton(text='Имя')
-      button2 = types.KeyboardButton(text='Возраст')
-      button3 = types.KeyboardButton(text='Пол')
-      button4 = types.KeyboardButton(text='Рост')
-      button5 = types.KeyboardButton(text='Вес')
-      button6 = types.KeyboardButton(text='Физическая активность')
-      button7 = types.KeyboardButton(text='Ккал в сутки')
-      button8 = types.KeyboardButton(text='Назад')
-      markup.add(button1, button2, button3, button4)
-      markup.add(button5, button6, button7, button8)
-      bot.send_message(message.chat.id, '', reply_markup=markup)
+    if message.text.lower() == 'моя персональная информация':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        button1 = types.KeyboardButton(text='Имя')
+        button2 = types.KeyboardButton(text='Возраст')
+        button3 = types.KeyboardButton(text='Пол')
+        button4 = types.KeyboardButton(text='Рост')
+        button5 = types.KeyboardButton(text='Вес')
+        button6 = types.KeyboardButton(text='Физическая активность')
+        button7 = types.KeyboardButton(text='Ккал в сутки')
+        button8 = types.KeyboardButton(text='Назад')
+        markup.add(button1, button2, button3, button4)
+        markup.add(button5, button6, button7, button8)
+        bot.send_message(message.chat.id, '', reply_markup=markup)
 
 
 @server.route(f"/{BOT_TOKEN}", methods=["POST"])
