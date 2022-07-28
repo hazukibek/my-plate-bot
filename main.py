@@ -51,6 +51,7 @@ def reg(message):
 def reg_name(message):
     name = message.text
     db_object.execute(f"UPDATE users SET name = {name} WHERE id = {user_id}")
+    db_connection.commit()
     bot.reply_to(message, "Прекрасное имя!")
     bot.send_message(message.chat.id, "Сколько Вам лет?")
     bot.register_next_step_handler(message, reg_age)
@@ -60,6 +61,7 @@ def reg_age(message):
     global age
     age = int(message.text)
     db_object.execute(f"UPDATE users SET age = {age} WHERE id = {user_id}")
+    db_connection.commit()
     bot.reply_to(message, "Окей")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = types.KeyboardButton("Женский")
@@ -73,6 +75,7 @@ def reg_sex(message):
     global sex
     sex = message.text
     db_object.execute(f"UPDATE users SET sex = {sex} WHERE id = {user_id}")
+    db_connection.commit()
     bot.send_message(message.chat.id, "Ваш рост в сантиметрах?", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, reg_height)
 
@@ -81,6 +84,7 @@ def reg_height(message):
     global height
     height = int(message.text)
     db_object.execute(f"UPDATE users SET height = {height} WHERE id = {user_id}")
+    db_connection.commit()
     bot.send_message(message.chat.id, "Сколько Вы весите в киллограммах?")
     bot.register_next_step_handler(message, reg_weight)
 
@@ -89,6 +93,7 @@ def reg_weight(message):
     global weight
     weight = int(message.text)
     db_object.execute(f"UPDATE users SET weight = {weight} WHERE id = {user_id}")
+    db_connection.commit()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = types.KeyboardButton("Минимальная активность")
     button2 = types.KeyboardButton("Слабая активность: раз в неделю")
@@ -104,6 +109,7 @@ def reg_phy(message):
     global phy
     phy = message.text
     db_object.execute(f"UPDATE users SET phy = {phy} WHERE id = {user_id}")
+    db_connection.commit()
     bot.reply_to(message, 'Cпасибо за информацию!', reply_markup=types.ReplyKeyboardRemove())
     if phy == "Минимальная активность":
         A = 1.2
@@ -122,6 +128,7 @@ def reg_phy(message):
     elif sex == "Женский":
         call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     db_object.execute(f"UPDATE users SET call = {call} WHERE id = {user_id}")
+    db_connection.commit()
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
     bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + call)
 
