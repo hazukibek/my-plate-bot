@@ -59,8 +59,6 @@ def reg_name(message):
 def reg_age(message):
     global age
     age = int(message.text)
-    db_object.execute(f"UPDATE users SET age = {age} WHERE id = {user_id}")
-    db_connection.commit()
     bot.reply_to(message, "Окей")
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = types.KeyboardButton("Женский")
@@ -73,8 +71,6 @@ def reg_age(message):
 def reg_sex(message):
     global sex
     sex = message.text
-    db_object.execute(f"UPDATE users SET sex = {sex} WHERE id = {user_id}")
-    db_connection.commit()
     bot.send_message(message.chat.id, "Ваш рост в сантиметрах?", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, reg_height)
 
@@ -82,8 +78,6 @@ def reg_sex(message):
 def reg_height(message):
     global height
     height = int(message.text)
-    db_object.execute(f"UPDATE users SET height = {height} WHERE id = {user_id}")
-    db_connection.commit()
     bot.send_message(message.chat.id, "Сколько Вы весите в киллограммах?")
     bot.register_next_step_handler(message, reg_weight)
 
@@ -105,8 +99,6 @@ def reg_weight(message):
 def reg_phy(message):
     global phy
     phy = message.text
-    db_object.execute(f"UPDATE users SET phy = {phy} WHERE id = {user_id}")
-    db_connection.commit()
     bot.reply_to(message, 'Cпасибо за информацию!', reply_markup=types.ReplyKeyboardRemove())
     if phy == "Минимальная активность":
         A = 1.2
