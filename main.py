@@ -71,6 +71,11 @@ def reg_age(message):
 def reg_sex(message):
     global sex
     sex = message.text
+    global f
+    if sex == "Женский":
+        f = -161
+    else:
+        f = 5
     bot.send_message(message.chat.id, "Ваш рост в сантиметрах?", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, reg_height)
 
@@ -102,37 +107,17 @@ def reg_phy(message):
     bot.reply_to(message, 'Cпасибо за информацию!', reply_markup=types.ReplyKeyboardRemove())
     if phy == "Минимальная активность":
         A = 1.2
-        if sex == "Мужской":
-            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-        elif sex == "Женский":
-            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Слабая активность: раз в неделю":
         A = 1.375
-        if sex == "Мужской":
-            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-        elif sex == "Женский":
-            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Средняя активность: 3 раза в неделю":
         A = 1.55
-        if sex == "Мужской":
-            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-        elif sex == "Женский":
-            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Высокая активность: почти каждый день":
         A = 1.725
-        if sex == "Мужской":
-            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-        elif sex == "Женский":
-            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     elif phy == "Экстра-активность: тяжелая физическая работа; спорт":
         A = 1.9
-        if sex == "Мужской":
-            call = (10 * weight + 6.25 * height - 5 * age + 5) * A
-        elif sex == "Женский":
-            call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     else:
         bot.send_message(message.chat.id, "invalid data")
-
+    call = (10 * weight + 6.25 * height - 5 * age + f) * A
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
     bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call))
     db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)",(age, height, weight, call, name, phy, sex))
