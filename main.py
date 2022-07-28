@@ -51,7 +51,6 @@ def reg(message):
 def reg_name(message):
     global name
     name = message.text
-    db_object.execute(f"UPDATE users SET name = %s WHERE id = %s ", [name, user_id])
     bot.reply_to(message, "Прекрасное имя!")
     bot.send_message(message.chat.id, "Сколько Вам лет?")
     bot.register_next_step_handler(message, reg_age)
@@ -92,8 +91,6 @@ def reg_height(message):
 def reg_weight(message):
     global weight
     weight = int(message.text)
-    db_object.execute(f"UPDATE users SET weight = {weight} WHERE id = {user_id}")
-    db_connection.commit()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = types.KeyboardButton("Минимальная активность")
     button2 = types.KeyboardButton("Слабая активность: раз в неделю")
