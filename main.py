@@ -70,30 +70,52 @@ def reg_age(message):
 def reg_sex(message):
     global sex
     sex = message.text
-    bot.send_message(message.chat.id, "Ваш рост?")
+    bot.send_message(message.chat.id, "Ваш рост в сантиметрах? ")
     bot.register_next_step_handler(message, reg_height)
 
 
 def reg_height(message):
     global height
     height = int(message.text)
-    bot.send_message(message.chat.id, "Сколько Вы весите?")
+    bot.send_message(message.chat.id, "Сколько Вы весите в киллограммах?")
     bot.register_next_step_handler(message,reg_weight)
 
 
 def reg_weight(message):
     global weight
-    weight = int (message.text)
-    bot.send_message(message.chat.id, "Ваша степень физической активности:")
+    weight = int(message.text)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = types.KeyboardButton("Минимальная активность")
     button2 = types.KeyboardButton("Слабая активность: раз в неделю")
     button3 = types.KeyboardButton("Средняя активность: 3 раза в неделю")
     button4 = types.KeyboardButton("Высокая активность: почти каждый день")
     button5 = types.KeyboardButton("Экстра-активность: тяжелая физическая работа; спорт")
-    markup.add(buttons)
-    bot.register_next_step_handler(message, reg_weight)
+    markup.add(button1, button2, button3, button4, button5)
+    bot.send_message(message.chat.id, "Ваша степень физической активности:", reply_markup=markup)
+    bot.register_next_step_handler(message, reg_phy)
 
+
+def reg_phy(message):
+    global phy
+    phy = message.text
+    if phy == "Минимальная активность":
+        A = 1.2
+    elif phy == "Слабая активность: раз в неделю":
+        A = 1.375
+    elif phy == "Средняя активность: 3 раза в неделю":
+        A = 1.55
+    elif phy == "Высокая активность: почти каждый день":
+        A = 1.725
+    elif phy == "Экстра-активность: тяжелая физическая работа; спорт":
+        A = 1.9
+    else:
+        bot.send_message(message.chat.id, "invalid data")
+
+    if sex == "Мужской":
+        call = (10 * weight + 6.25 * height - 5 * age + 5) * A
+    elif sex == "Женский":
+        call = (10 * weight + 6.25 * height - 5 * age - 161) * A
+    db_object.execute("INSERT INTO users(name, age, height, weight, phy, call) VALUES (%s, %s, %s, %s, %s, %s)", (name, age, height, weight, phy, call))
 
 
 @bot.message_handler(commands=['begin'])
