@@ -70,7 +70,7 @@ def reg_age(message):
 def reg_sex(message):
     global sex
     sex = message.text
-    bot.send_message(message.chat.id, "Ваш рост в сантиметрах? ")
+    bot.send_message(message.chat.id, "Ваш рост в сантиметрах?", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, reg_height)
 
 
@@ -78,7 +78,7 @@ def reg_height(message):
     global height
     height = int(message.text)
     bot.send_message(message.chat.id, "Сколько Вы весите в киллограммах?")
-    bot.register_next_step_handler(message,reg_weight)
+    bot.register_next_step_handler(message, reg_weight)
 
 
 def reg_weight(message):
@@ -116,6 +116,9 @@ def reg_phy(message):
     elif sex == "Женский":
         call = (10 * weight + 6.25 * height - 5 * age - 161) * A
     db_object.execute("INSERT INTO users(name, age, height, weight, phy, call) VALUES (%s, %s, %s, %s, %s, %s)", (name, age, height, weight, phy, call))
+    bot.reply_to(message, 'Cпасибо за информацию!', reply_markup=types.ReplyKeyboardRemove())
+    bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
+    bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + call)
 
 
 @bot.message_handler(commands=['begin'])
