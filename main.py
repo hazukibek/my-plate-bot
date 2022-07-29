@@ -14,6 +14,8 @@ logger.setLevel(logging.DEBUG)
 path = 'C:\Users\Asus\PycharmProjects\myplate\users.xlsx'
 wb_obj = openpyxl.load_workbook(path)
 sheet_obj = wb_obj.active
+user_id = ""
+username = ""
 
 
 @bot.message_handler(commands=['start'])
