@@ -1,7 +1,7 @@
 import os
 import telebot
 import logging
-import psycopg2
+import openpyxl
 from config import *
 from flask import Flask, request
 from telebot import types
@@ -11,48 +11,21 @@ server = Flask(__name__)
 logger = telebot.logger
 logger.setLevel(logging.DEBUG)
 
-
-db_connection = psycopg2.connect(DB_URI, sslmode='require')
-db_object = db_connection.cursor()
-
-
-def update_messages_count(user_id):
-    db_object.execute(f"UPDATE users SET messages = messages + 1 WHERE id = {user_id}")
-    db_connection.commit()
+path = 'C:\Users\Asus\PycharmProjects\myplate\users.xlsx'
+wb_obj = openpyxl.load_workbook(path)
+sheet_obj = wb_obj.active
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
     global user_id
     user_id = message.from_user.id
+    global username
     username = message.from_user.username
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     yes = types.KeyboardButton("Хорошо")
     markup.add(yes)
     bot.reply_to(message, f'Добро пожаловать, {username}. Перед работой с ботом, Вы должны ответить на несколько вопросов.', reply_markup=markup)
-
-    db_object.execute(f"SELECT id FROM users WHERE id = {user_id}")
-    result = db_object.fetchone()
-
-    if not result:
-        db_object.execute("INSERT INTO users(id, username, messages) VALUES (%s, %s, %s)", (user_id, username, 0))
-        db_connection.commit()
-
-    update_messages_count(user_id)
-
-
-@server.route(f"/{BOT_TOKEN}", methods=["POST"])
-def redirect_message():
-    json_string = request.get_data().decode("utf-8")
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return "!", 200
-
-
-if __name__ == "__main__":
-    bot.remove_webhook()
-    bot.set_webhook(url=APP_URL)
-    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 
 @bot.message_handler(content_types=['text'])
@@ -112,7 +85,38 @@ def reg_weight(message):
     button5 = types.KeyboardButton("Экстра-активность: тяжелая физическая работа; спорт")
     markup.add(button1, button2, button3, button4, button5)
     bot.send_message(message.chat.id, "Ваша степень физической активности:", reply_markup=markup)
-    bot.register_next_step_handler(message, reg_phy)
+    bot.register_next_step_handler(message, reg_all)
+
+
+def reg_all(message):
+    markup_inline = types.InlineKeyboardMarkup(row_width=3)
+    item1 = types.InlineKeyboardButton(text='➖Молоко', callback_data='молоко')
+    item2 = types.InlineKeyboardButton(text='➖Яйцо', callback_data='яйцо')
+    item3 = types.InlineKeyboardButton(text='➖Пшеница', callback_data='пшеница')
+    item4 = types.InlineKeyboardButton(text='➖Рыба', callback_data='рыба')
+    item5 = types.InlineKeyboardButton(text='➖Орехи', callback_data='орехи')
+    item6 = types.InlineKeyboardButton(text='➖Грибы', callback_data='грибы')
+    item7 = types.InlineKeyboardButton(text="➖Курица", callback_data='курица')
+    item8 = types.InlineKeyboardButton(text='➖Шоколад', callback_data='шоколад')
+    item9 = types.InlineKeyboardButton(text='➖Кофе', callback_data='кофе')
+    item10 = types.InlineKeyboardButton(text='➖Картофель', callback_data='картофель')
+    item11 = types.InlineKeyboardButton(text='➖Лимон', callback_data='лимон')
+    item12 = types.InlineKeyboardButton(text='➖Рис', callback_data='рис')
+    item13 = types.InlineKeyboardButton(text='➖Перец', callback_data='перец')
+    markup_inline.add(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13)
+    bot.send_message(message.chat.id, "На какие продукты у Вас аллергия?", reply_markup=markup_inline)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    bot.send_message(call.message.chat.id, 'Хорошо!')
+    allergy = ""
+    global allergy
+    products = ["молоко", "яйцо", "пшеница", "рыба", "орехи", "грибы", "курица", "шоколад", "кофе", "картофель", "лимон", "рис", "перец"]
+    for i in range(0, 14):
+        if call.data == products[i]:
+            allergy = allergy + call.data
+    bot.register_next_step_handler(callback, reg_all)
 
 
 def reg_phy(message):
@@ -131,12 +135,25 @@ def reg_phy(message):
         A = 1.9
     else:
         bot.send_message(message.chat.id, "invalid data")
+    global call
     call = (10 * weight + 6.25 * height - 5 * age + f) * A
     bot.send_message(message.chat.id,  "Бот расчитывает количество калорий по формуле Миффлина-Сан Жеора- одной из самых последних формул расчета калорий для оптимального похудения или сохранения нормального веса.")
     bot.send_message(message.chat.id, "Необходимое количество килокалорий (ккал) в сутки для Вас = " + str(call)+" "+"ккал")
-    bot.send_message(message.chat.id, "Хотите узнать ")
-    db_object.execute("INSERT INTO users(age, height, weight, call, name, phy, sex) VALUES (%s, %s, %s, %s, %s, %s, %s)",(age, height, weight, call, name, phy, sex))
-    db_connection.commit()
+    bot.send_message(message.chat.id, "Нажмите /save для сохранения данных ")
+
+
+@bot.message_handler(commands=['save'])
+def save(message):
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=1).value = user_id
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=2).value = username
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=3).value = name
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=4).value = age
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=5).value = height
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=6).value = weight
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=7).value = phy
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=8).value = call
+     sheet_obj.cell(row=sheet_obj.max_row + 1, column=9).value = allergy
+
 
 
 @bot.message_handler(commands=['begin'])
@@ -166,3 +183,26 @@ def user_text(message):
         markup.add(button1, button2, button3, button4)
         markup.add(button5, button6, button7, button8)
         bot.send_message(message.chat.id, '', reply_markup=markup)
+
+
+@bot.message_handler(content_types=['text'])
+def get_user_book(message):
+  book = message.text.lower()
+  path = open("/content/drive/MyDrive/NIS учебники/" + book + ".pdf", "rb")
+  bot.send_message(message.chat.id, "Ищем книгу...")
+  bot.send_document(message.chat.id, path)
+  path.close()
+
+
+@server.route(f"/{BOT_TOKEN}", methods=["POST"])
+def redirect_message():
+    json_string = request.get_data().decode("utf-8")
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "!", 200
+
+
+if __name__ == "__main__":
+    bot.remove_webhook()
+    bot.set_webhook(url=APP_URL)
+    server.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
